@@ -47,20 +47,27 @@ cmake --build . --config Release
 
 ## Running Tests
 
-Unit tests and benchmarks are built by default.
+RegExJit includes a comprehensive set of unit tests and benchmarks. We provide convenient wrapper scripts to build and run these easily.
 
 ### Unit Tests
-You can verify correctness by running the test suite:
+To build and run the unit tests natively on your host machine:
 ```bash
-./build/tests/regexjit_tests
+./scripts/run_tests.sh
 ```
+
+### Cross-Platform Testing
+To ensure the x86_64 JIT compiler backend works correctly even if you are on an ARM64 machine (e.g., Apple Silicon), or vice versa, you can use the cross-platform testing script. This script automatically provisions an Ubuntu Docker container to compile and run the tests. 
+```bash
+./scripts/run_cross_platform_tests.sh
+```
+*Note: This script requires Docker to be installed. It is intelligent enough to detect Docker's presence and will prompt you with installation instructions if it is missing.*
 
 ### Benchmarks
 To see how RegExJit performs against `std::regex`:
 ```bash
-./build/benchmarks/regexjit_benchmark
+./scripts/run_benchmarks.sh
 ```
-*Note: Use the `--verify` flag to run correctness assertions alongside the benchmarking.*
+*Note: You can pass the `--verify` flag to the script to run correctness assertions alongside the benchmarking (e.g., `./scripts/run_benchmarks.sh --verify`).*
 
 ## Utilities
 
