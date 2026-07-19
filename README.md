@@ -78,6 +78,42 @@ To see how RegExJit performs against `std::regex`:
 ```
 *Note: You can pass the `--verify` flag to the script to run correctness assertions alongside the benchmarking (e.g., `./scripts/run_benchmarks.sh --verify`).*
 
+#### Benchmark Results (Windows / MSVC)
+```
+========================================================================================================================
+Benchmark Name                Find JIT (mean±std)     Find std (mean±std) Sub JIT (mean±std)      Sub std (mean±std)
+------------------------------------------------------------------------------------------------------------------------
+Email Pattern (Found)               1.2 ± 0.4 µs           5.4 ± 0.8 µs  1974.4 ± 60.2 µs      15605.4 ± 78.1 µs
+Target at end (Find)               35.8 ± 4.6 µs          33.2 ± 2.5 µs    64.8 ± 31.8 µs        824.6 ± 50.4 µs
+Complex Not Found               1015.2 ± 14.0 µs       1182.0 ± 24.3 µs  1129.2 ± 52.2 µs       1966.2 ± 55.9 µs
+Alphanumeric seq                    0.4 ± 0.5 µs           0.4 ± 0.5 µs  1761.0 ± 47.2 µs      9228.2 ± 261.9 µs
+Alternatives                        0.4 ± 0.5 µs           0.2 ± 0.4 µs  1617.6 ± 46.5 µs       1423.8 ± 25.5 µs
+Backreference search                0.8 ± 0.4 µs           2.0 ± 0.0 µs  2388.0 ± 61.0 µs     21041.2 ± 472.1 µs
+Backref substitute                  1.2 ± 0.4 µs           5.6 ± 0.8 µs  2452.4 ± 73.5 µs     20588.2 ± 551.3 µs
+Negative: Wrong domain          2055.4 ± 84.4 µs     16519.2 ± 401.1 µs  2171.0 ± 59.1 µs     17832.0 ± 360.7 µs
+Negative: Backref mismatch       935.0 ± 19.8 µs       1402.8 ± 41.8 µs  1043.2 ± 55.9 µs       2261.0 ± 34.7 µs
+Negative: Anchor mismatch         721.6 ± 6.3 µs           0.0 ± 0.0 µs   892.0 ± 37.1 µs        891.0 ± 24.4 µs
+========================================================================================================================
+```
+
+#### Benchmark Results (Linux / GCC)
+```
+========================================================================================================================
+Benchmark Name                Find JIT (mean±std)     Find std (mean±std) Sub JIT (mean±std)      Sub std (mean±std)
+------------------------------------------------------------------------------------------------------------------------
+Email Pattern (Found)               3.6 ± 1.0 µs          55.8 ± 2.6 µs 6928.2 ± 116.5 µs   283828.2 ± 2117.8 µs
+Target at end (Find)               14.8 ± 9.1 µs     69213.8 ± 203.0 µs   133.0 ± 13.7 µs     77306.8 ± 479.1 µs
+Complex Not Found              6445.2 ± 140.5 µs    106267.4 ± 405.7 µs 6625.4 ± 105.8 µs    114006.4 ± 396.0 µs
+Alphanumeric seq                    2.4 ± 0.8 µs           3.8 ± 1.6 µs15292.2 ± 419.9 µs   223569.2 ± 2683.6 µs
+Alternatives                        4.4 ± 0.5 µs          86.0 ± 2.3 µs 6962.0 ± 610.6 µs   245327.8 ± 1952.3 µs
+Backreference search                2.8 ± 0.4 µs           5.2 ± 1.0 µs  9288.2 ± 84.7 µs   394524.8 ± 1670.3 µs
+Backref substitute                  4.2 ± 0.7 µs         79.4 ± 14.3 µs 7379.8 ± 261.9 µs   387144.4 ± 1649.1 µs
+Negative: Wrong domain         6875.8 ± 145.6 µs   317019.8 ± 5948.8 µs 6899.0 ± 115.9 µs   326848.0 ± 3136.9 µs
+Negative: Backref mismatch     6476.2 ± 194.1 µs    114114.2 ± 245.1 µs 6311.8 ± 100.0 µs    121470.6 ± 484.9 µs
+Negative: Anchor mismatch      5754.0 ± 114.7 µs     66416.2 ± 738.8 µs  5745.6 ± 43.7 µs     73256.2 ± 366.6 µs
+========================================================================================================================
+```
+
 ## Utilities
 
 ### Disassembler (`regexjit_disasm`)
