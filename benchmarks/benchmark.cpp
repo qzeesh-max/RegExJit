@@ -23,6 +23,10 @@
 #include <iomanip>
 #include "regexjit/Regex.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace regexjit;
 using namespace std::chrono;
 
@@ -147,6 +151,11 @@ void run_benchmark(const std::string& name, const std::string& pattern, const st
 }
 
 int main(int argc, char** argv) {
+#ifdef _WIN32
+    // Set console code page to UTF-8 so console knowns how to interpret string data
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+
     bool verify = false;
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "--verify") {
