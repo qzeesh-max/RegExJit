@@ -74,7 +74,7 @@ When compiled in Release mode, **RegExJit** achieves staggering performance gain
 
 *Note: The JIT overhead is heavily amortized across repeated executions. `std::regex` suffers from extreme recursive overhead for backtracking which RegExJit circumvents using optimized x86_64 assembly.*
 
-### macOS (Apple Silicon via Rosetta 2)
+### macOS (Apple Silicon Native ARM64)
 ```text
 ========================================================================================================================
 Benchmark Name                Find JIT (mean±std)     Find std (mean±std) Sub JIT (mean±std)      Sub std (mean±std)
