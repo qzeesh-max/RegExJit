@@ -36,15 +36,17 @@ typedef bool (*RegexJitFunc)(const char* str, const char* end, const char** capt
 
 class CompiledRegex {
 public:
-    CompiledRegex(RegexJitFunc func, int max_capture_groups);
+    CompiledRegex(RegexJitFunc func, int max_capture_groups, std::string literal_prefix = "");
     ~CompiledRegex();
 
     RegexJitFunc get_func() const { return func_; }
     int get_max_capture_groups() const { return max_capture_groups_; }
+    const std::string& get_literal_prefix() const { return literal_prefix_; }
 
 private:
     RegexJitFunc func_;
     int max_capture_groups_;
+    std::string literal_prefix_;
 };
 
 class Compiler {

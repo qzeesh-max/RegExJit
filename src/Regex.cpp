@@ -94,8 +94,20 @@ MatchResult Regex::find(std::string_view subject) const {
     const char* str_start = subject.data();
     const char* str_end = subject.data() + subject.size();
     
+    const std::string& prefix = pimpl->compiled->get_literal_prefix();
+    const char* current = str_start;
+    
     // Find loop
-    for (const char* current = str_start; current <= str_end; ++current) {
+    while (current <= str_end) {
+        if (!prefix.empty()) {
+            std::string_view remaining(current, str_end - current);
+            size_t pos = remaining.find(prefix);
+            if (pos == std::string_view::npos) {
+                break; // No chance of matching
+            }
+            current += pos;
+        }
+
         bool matched = pimpl->compiled->get_func()(current, str_end, capture_ptrs.data());
         if (matched) {
             result.matched = true;
@@ -116,6 +128,7 @@ MatchResult Regex::find(std::string_view subject) const {
             }
             break; // found the first match
         }
+        current++;
     }
     
     return result;
@@ -127,15 +140,34 @@ std::string Regex::substitute(std::string_view subject, std::string_view replace
     }
 
     std::string result;
+    result.reserve(subject.size()); // Pre-allocate for speed
+    
     int num_captures = pimpl->compiled->get_max_capture_groups();
     std::vector<const char*> capture_ptrs((num_captures + 1) * 2, nullptr);
 
     const char* current = subject.data();
     const char* str_end = subject.data() + subject.size();
+    const char* unmatched_start = current;
     
+    const std::string& prefix = pimpl->compiled->get_literal_prefix();
+
     while (current <= str_end) {
+        if (!prefix.empty()) {
+            std::string_view remaining(current, str_end - current);
+            size_t pos = remaining.find(prefix);
+            if (pos == std::string_view::npos) {
+                break; // No chance of matching anymore
+            }
+            current += pos;
+        }
+
         bool matched = pimpl->compiled->get_func()(current, str_end, capture_ptrs.data());
         if (matched) {
+            // Bulk append unmatched text
+            if (current > unmatched_start) {
+                result.append(unmatched_start, current - unmatched_start);
+            }
+            
             // Append replacement
             for (size_t i = 0; i < replacement.size(); ++i) {
                 if (replacement[i] == '\\' && i + 1 < replacement.size() && std::isdigit(replacement[i+1])) {
@@ -168,12 +200,14 @@ std::string Regex::substitute(std::string_view subject, std::string_view replace
             } else {
                 current = match_end;
             }
+            unmatched_start = current;
         } else {
-            if (current < str_end) {
-                result.push_back(*current);
-            }
             current++;
         }
+    }
+    
+    if (str_end > unmatched_start) {
+        result.append(unmatched_start, str_end - unmatched_start);
     }
     
     return result;

@@ -61,6 +61,25 @@ int count_groups(const Node* node) {
     return max_group;
 }
 
+std::string extract_literal_prefix(const Node* node) {
+    if (!node) return "";
+    switch (node->type()) {
+        case regexjit::ast::NodeType::Literal:
+            return static_cast<const Literal*>(node)->text;
+        case regexjit::ast::NodeType::Sequence: {
+            auto seq = static_cast<const Sequence*>(node);
+            if (!seq->elements.empty()) {
+                return extract_literal_prefix(seq->elements[0].get());
+            }
+            return "";
+        }
+        case regexjit::ast::NodeType::Group:
+            return extract_literal_prefix(static_cast<const Group*>(node)->child.get());
+        default:
+            return "";
+    }
+}
+
 #if ASMJIT_ARCH_X86
 class X86RegexCompiler {
     x86::Compiler& cc;
@@ -698,8 +717,8 @@ static asmjit::JitRuntime& get_jit_runtime() {
     return *runtime;
 }
 
-CompiledRegex::CompiledRegex(RegexJitFunc func, int max_capture_groups)
-    : func_(func), max_capture_groups_(max_capture_groups) {}
+CompiledRegex::CompiledRegex(RegexJitFunc func, int max_capture_groups, std::string literal_prefix)
+    : func_(func), max_capture_groups_(max_capture_groups), literal_prefix_(std::move(literal_prefix)) {}
 
 CompiledRegex::~CompiledRegex() {
     if (func_) {
@@ -746,8 +765,10 @@ std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast, bool d
         std::cout << "--- RegexJit Disassembly ---\n";
         // Assembly is already printed to stdout by FileLogger
     }
+    
+    std::string prefix = extract_literal_prefix(ast.get());
 
-    return std::make_shared<CompiledRegex>(func, max_groups);
+    return std::make_shared<CompiledRegex>(func, max_groups, std::move(prefix));
 }
 
 } // namespace regexjit
