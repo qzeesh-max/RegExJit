@@ -1,0 +1,2 @@
+add_executable(regexjit_benchmark benchmark.cpp)
+target_link_libraries(regexjit_benchmark PRIVATE regexjit)

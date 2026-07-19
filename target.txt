@@ -1,0 +1,6 @@
+[Server::Production]
+# Primary telemetry & cluster routing
+endpoint = "https://admin:p%40ssw0rd@api.cluster-01.us-east.prod.internal:8443/v2/telemetry?depth=full&retry=true"
+matrix = ((A + B) * (C - (D / E)))
+owner_email = "sysadmin.core+alerts-2026@sub-domain.enterprise-cloud.org"
+data_packet = <[{ID: 0x7F9A, Status: "ACTIVE", Tags:[alpha, beta, gamma]}]>

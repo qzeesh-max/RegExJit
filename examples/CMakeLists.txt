@@ -1,0 +1,5 @@
+add_executable(regexjit_grep grep/main.cpp)
+target_link_libraries(regexjit_grep PRIVATE regexjit)
+
+add_executable(regexjit_find_substitute find_substitute/main.cpp)
+target_link_libraries(regexjit_find_substitute PRIVATE regexjit)
