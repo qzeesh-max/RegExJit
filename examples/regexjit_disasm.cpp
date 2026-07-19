@@ -30,11 +30,13 @@ int main(int argc, char** argv) {
     std::string pattern = argv[1];
 
     try {
-        std::cout << "Compiling pattern: " << pattern << "\n";
-        // Passing disassemble = true
-        Regex::compile(pattern, true);
+        std::cout << "Compiling pattern: " << pattern << std::endl << std::flush;
+        
+        auto re = Regex::compile(pattern, true);
+        
+        std::cout << "Successfully compiled!\n" << std::flush;
     } catch (const std::exception& e) {
-        std::cerr << "Compilation failed: " << e.what() << "\n";
+        std::cerr << "Compilation failed: " << e.what() << std::endl;
         return 1;
     }
 

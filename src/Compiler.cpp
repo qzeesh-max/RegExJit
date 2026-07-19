@@ -693,16 +693,31 @@ public:
 
 namespace regexjit {
 
+static asmjit::JitRuntime& get_jit_runtime() {
+    static asmjit::JitRuntime* runtime = new asmjit::JitRuntime();
+    return *runtime;
+}
+
+CompiledRegex::CompiledRegex(RegexJitFunc func, int max_capture_groups)
+    : func_(func), max_capture_groups_(max_capture_groups) {}
+
+CompiledRegex::~CompiledRegex() {
+    if (func_) {
+        // get_jit_runtime().release(func_);
+    }
+}
+
 Compiler::Compiler() {}
 Compiler::~Compiler() {}
 
 std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast, bool disassemble) {
     int max_groups = count_groups(ast.get());
     
-    CodeHolder code;
-    code.init(runtime_.environment());
+    FileLogger logger(stdout);
     
-    StringLogger logger;
+    CodeHolder code;
+    code.init(get_jit_runtime().environment());
+    
     if (disassemble) {
         code.set_logger(&logger);
     }
@@ -721,18 +736,18 @@ std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast, bool d
     throw CompileError("Unsupported architecture for RegexJIT");
 #endif
 
-    RegexJitFunc func;
-    Error err = runtime_.add(&func, &code);
+    RegexJitFunc func = nullptr;
+    Error err = get_jit_runtime().add(&func, &code);
     if (err != asmjit::kErrorOk) {
         throw CompileError("AsmJit compilation failed");
     }
 
     if (disassemble) {
         std::cout << "--- RegexJit Disassembly ---\n";
-        std::cout << logger.data() << "\n";
+        // Assembly is already printed to stdout by FileLogger
     }
 
-    return std::make_shared<CompiledRegex>(runtime_, func, max_groups);
+    return std::make_shared<CompiledRegex>(func, max_groups);
 }
 
 } // namespace regexjit

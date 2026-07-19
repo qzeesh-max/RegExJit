@@ -36,19 +36,13 @@ typedef bool (*RegexJitFunc)(const char* str, const char* end, const char** capt
 
 class CompiledRegex {
 public:
-    CompiledRegex(asmjit::JitRuntime& runtime, RegexJitFunc func, int max_capture_groups)
-        : runtime_(runtime), func_(func), max_capture_groups_(max_capture_groups) {}
-    ~CompiledRegex() {
-        if (func_) {
-            runtime_.release(func_);
-        }
-    }
+    CompiledRegex(RegexJitFunc func, int max_capture_groups);
+    ~CompiledRegex();
 
     RegexJitFunc get_func() const { return func_; }
     int get_max_capture_groups() const { return max_capture_groups_; }
 
 private:
-    asmjit::JitRuntime& runtime_;
     RegexJitFunc func_;
     int max_capture_groups_;
 };
@@ -59,9 +53,6 @@ public:
     ~Compiler();
 
     std::shared_ptr<CompiledRegex> compile(const ast::NodePtr& ast, bool disassemble = false);
-
-private:
-    asmjit::JitRuntime runtime_;
 };
 
 } // namespace regexjit

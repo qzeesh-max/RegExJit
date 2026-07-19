@@ -35,11 +35,11 @@ data_packet = <[{ID: 0x7F9A, Status: "ACTIVE", Tags:[alpha, beta, gamma]}]>
 
 // Helper function to test regex using Perl as external PCRE reference
 bool check_with_perl(const std::string& pattern, const std::string& input) {
-    std::ofstream tmp_text("tmp_test_text.txt");
+    std::ofstream tmp_text("tmp_test_text.txt", std::ios::binary);
     tmp_text << input;
     tmp_text.close();
 
-    std::ofstream tmp_pattern("tmp_test_pattern.txt");
+    std::ofstream tmp_pattern("tmp_test_pattern.txt", std::ios::binary);
     tmp_pattern << pattern;
     tmp_pattern.close();
 
@@ -71,11 +71,16 @@ bool check_with_perl(const std::string& pattern, const std::string& input) {
     std::remove("tmp_test_pattern.txt");
     std::remove("tmp_test_script.pl");
 
+#ifdef _WIN32
+    if (ret == 0) return true;
+    if (ret == 1) return false;
+#else
     if (WIFEXITED(ret)) {
         int status = WEXITSTATUS(ret);
         if (status == 0) return true;
         if (status == 1) return false;
     }
+#endif
     throw std::runtime_error("Perl script failed to execute properly");
 }
 

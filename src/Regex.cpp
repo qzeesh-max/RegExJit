@@ -23,8 +23,8 @@
 namespace regexjit {
 
 struct Regex::Impl {
+    Compiler compiler; // Hold the compiler which holds JitRuntime. Must be declared first to be destroyed last.
     std::shared_ptr<CompiledRegex> compiled;
-    Compiler compiler; // Hold the compiler which holds JitRuntime
 };
 
 Regex::Regex() = default;
