@@ -242,3 +242,11 @@ int main() {
 
 ## Limitations
 This engine implements a simplified JIT approach (currently without a backtracking stack inside the compiled code). As such, some highly complex patterns involving ambiguous variable-length repetitions alongside extensive backtracking may behave greedily or simplistically compared to PCRE.
+
+Specifically, the following advanced PCRE features are **explicitly unsupported** and will safely throw a `ParseError`:
+- Lookaheads (`(?=...)` and `(?!...)`)
+- Lookbehinds (`(?<=...)` and `(?<!...)`)
+- Atomic Groups (`(?>...)`)
+- Named Capture Groups (`(?<name>...)`)
+
+Additionally, while lazy quantifiers (like `.*?` or `+?`) are parsed without error, they currently evaluate **greedily** under the hood due to the limitations of the un-backtracked NFA compiler.

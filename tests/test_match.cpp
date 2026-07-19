@@ -190,3 +190,45 @@ BOOST_AUTO_TEST_CASE(TestRegexMatchNegativeEdgeCases) {
     BOOST_CHECK(!re3.match("abc").matched);
 }
 
+BOOST_AUTO_TEST_CASE(TestRegexMatchEscapedClasses) {
+    // Digits
+    auto re_d = Regex::compile("\\d+");
+    BOOST_CHECK(re_d.match("12345").matched);
+    BOOST_CHECK(!re_d.match("abc").matched);
+    
+    auto re_D = Regex::compile("\\D+");
+    BOOST_CHECK(re_D.match("abc").matched);
+    BOOST_CHECK(!re_D.match("123").matched);
+
+    // Word characters
+    auto re_w = Regex::compile("\\w+");
+    BOOST_CHECK(re_w.match("word_123").matched);
+    BOOST_CHECK(!re_w.match("!@#").matched);
+    
+    // Whitespace
+    auto re_s = Regex::compile("\\s+");
+    BOOST_CHECK(re_s.match(" \t\n").matched);
+    BOOST_CHECK(!re_s.match("abc").matched);
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexMatchLazyQuantifiers) {
+    auto re1 = Regex::compile("a+?");
+    // It should match 'a' minimally but still succeed.
+    BOOST_CHECK(re1.match("a").matched);
+    BOOST_CHECK(re1.match("aaa").matched);
+    
+    auto re2 = Regex::compile("a*?");
+    BOOST_CHECK(re2.match("").matched);
+    BOOST_CHECK(re2.match("aaa").matched);
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexMatchDeepNesting) {
+    auto re = Regex::compile("((((a)b)c)d)e");
+    auto res = re.match("abcde");
+    BOOST_CHECK(res.matched);
+    BOOST_CHECK_EQUAL(res.captures.size(), 5u);
+    BOOST_CHECK_EQUAL(res.captures[1], "abcd");
+    BOOST_CHECK_EQUAL(res.captures[2], "abc");
+    BOOST_CHECK_EQUAL(res.captures[3], "ab");
+    BOOST_CHECK_EQUAL(res.captures[4], "a");
+}

@@ -100,3 +100,25 @@ BOOST_AUTO_TEST_CASE(TestRegexFindNegativeMoreCases) {
     auto re2 = Regex::compile("[A-Z]{5}");
     BOOST_CHECK(!re2.find("all lowercase text here").matched);
 }
+
+BOOST_AUTO_TEST_CASE(TestRegexFindEscapedClasses) {
+    auto re = Regex::compile("\\d{3}-\\d{2}-\\d{4}");
+    auto res = re.find("My SSN is 123-45-6789, keep it safe");
+    BOOST_CHECK(res.matched);
+    BOOST_CHECK_EQUAL(res.match_str, "123-45-6789");
+    
+    auto re2 = Regex::compile("\\s\\w+\\s");
+    auto res2 = re2.find("find a word here");
+    BOOST_CHECK(res2.matched);
+    BOOST_CHECK_EQUAL(res2.match_str, " a ");
+}
+
+
+
+BOOST_AUTO_TEST_CASE(TestRegexFindComplexAlternationBackref) {
+    auto re = Regex::compile("(foo|bar|baz)\\s+\\1");
+    BOOST_CHECK(re.find("this is bar bar test").matched);
+    BOOST_CHECK_EQUAL(re.find("this is bar bar test").match_str, "bar bar");
+    
+    BOOST_CHECK(!re.find("this is foo bar test").matched);
+}
