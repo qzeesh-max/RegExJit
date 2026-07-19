@@ -82,19 +82,22 @@ void run_benchmark(const std::string& name, const std::string& pattern, const st
     std::vector<long long> sub_jit_times, sub_std_times;
     
     bool has_sub = !replacement.empty();
+    volatile size_t side_effect = 0;
 
     for (int i = 0; i < iterations; i++) {
         // Find 
         auto start_find_jit = high_resolution_clock::now();
         auto find_jit = re_jit.find(text);
         auto end_find_jit = high_resolution_clock::now();
-        find_jit_times.push_back(duration_cast<milliseconds>(end_find_jit - start_find_jit).count());
+        find_jit_times.push_back(duration_cast<microseconds>(end_find_jit - start_find_jit).count());
+        side_effect = side_effect + (find_jit.matched ? 1 : 0);
         
         auto start_find_std = high_resolution_clock::now();
         std::smatch find_std_m;
         bool found_std = std::regex_search(text, find_std_m, re_std);
         auto end_find_std = high_resolution_clock::now();
-        find_std_times.push_back(duration_cast<milliseconds>(end_find_std - start_find_std).count());
+        find_std_times.push_back(duration_cast<microseconds>(end_find_std - start_find_std).count());
+        side_effect = side_effect + (found_std ? 1 : 0);
         
         // Verify find in first iteration
         if (i == 0 && verify) {
@@ -113,12 +116,14 @@ void run_benchmark(const std::string& name, const std::string& pattern, const st
             auto start_sub_jit = high_resolution_clock::now();
             auto sub_jit = re_jit.substitute(text, replacement);
             auto end_sub_jit = high_resolution_clock::now();
-            sub_jit_times.push_back(duration_cast<milliseconds>(end_sub_jit - start_sub_jit).count());
+            sub_jit_times.push_back(duration_cast<microseconds>(end_sub_jit - start_sub_jit).count());
+            side_effect = side_effect + sub_jit.size();
             
             auto start_sub_std = high_resolution_clock::now();
             auto sub_std = std::regex_replace(text, re_std, replacement, std::regex_constants::format_sed);
             auto end_sub_std = high_resolution_clock::now();
-            sub_std_times.push_back(duration_cast<milliseconds>(end_sub_std - start_sub_std).count());
+            sub_std_times.push_back(duration_cast<microseconds>(end_sub_std - start_sub_std).count());
+            side_effect = side_effect + sub_std.size();
             
             if (i == 0 && verify && sub_jit != sub_std) {
                 std::cerr << "VERIFICATION FAILED: RegExJit substitute output does not match std::regex output.\n";
@@ -138,7 +143,7 @@ void run_benchmark(const std::string& name, const std::string& pattern, const st
     }
     results.push_back(res);
     
-    std::cout << "Done (" << iterations << " iterations)." << std::endl;
+    std::cout << "Done (" << iterations << " iterations). side_effect=" << side_effect << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -179,17 +184,17 @@ int main(int argc, char** argv) {
         std::cout << std::left << std::setw(30) << r.name << std::right;
         
         char buf[100];
-        snprintf(buf, sizeof(buf), "%.1f ± %.1f ms", r.find_jit_mean, r.find_jit_stddev);
+        snprintf(buf, sizeof(buf), "%.1f ± %.1f µs", r.find_jit_mean, r.find_jit_stddev);
         std::cout << std::setw(20) << buf;
         
-        snprintf(buf, sizeof(buf), "%.1f ± %.1f ms", r.find_std_mean, r.find_std_stddev);
+        snprintf(buf, sizeof(buf), "%.1f ± %.1f µs", r.find_std_mean, r.find_std_stddev);
         std::cout << std::setw(25) << buf;
         
         if (r.has_sub) {
-            snprintf(buf, sizeof(buf), "%.1f ± %.1f ms", r.sub_jit_mean, r.sub_jit_stddev);
+            snprintf(buf, sizeof(buf), "%.1f ± %.1f µs", r.sub_jit_mean, r.sub_jit_stddev);
             std::cout << std::setw(20) << buf;
             
-            snprintf(buf, sizeof(buf), "%.1f ± %.1f ms", r.sub_std_mean, r.sub_std_stddev);
+            snprintf(buf, sizeof(buf), "%.1f ± %.1f µs", r.sub_std_mean, r.sub_std_stddev);
             std::cout << std::setw(25) << buf;
         } else {
             std::cout << std::setw(20) << "-" << std::setw(25) << "-";
