@@ -6,3 +6,6 @@ target_link_libraries(regexjit_find_substitute regexjit)
 
 add_executable(regexjit_disasm regexjit_disasm.cpp)
 target_link_libraries(regexjit_disasm regexjit)
+
+add_executable(regexjit_minimal test_minimal.cpp)
+target_link_libraries(regexjit_minimal regexjit)
