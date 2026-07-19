@@ -42,7 +42,7 @@ public:
     Compiler();
     ~Compiler();
 
-    std::shared_ptr<CompiledRegex> compile(const ast::NodePtr& ast);
+    std::shared_ptr<CompiledRegex> compile(const ast::NodePtr& ast, bool disassemble = false);
 
 private:
     asmjit::JitRuntime runtime_;

@@ -203,6 +203,7 @@ class ParserImpl {
                     min_match = min_str.empty() ? 0 : std::stoi(min_str);
                     if (!max_str.empty()) max_match = std::stoi(max_str);
                     else if (min_str.empty() && max_str.empty()) throw ParseError("Invalid quantifier {}");
+                    if (max_match != -1 && min_match > max_match) throw ParseError("Invalid quantifier range");
                 }
                 
                 bool greedy = true;

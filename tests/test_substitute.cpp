@@ -20,3 +20,39 @@ BOOST_AUTO_TEST_CASE(TestRegexSubstituteMultiple) {
     std::string res = re.substitute("banana", "o");
     BOOST_CHECK_EQUAL(res, "bonono");
 }
+
+BOOST_AUTO_TEST_CASE(TestRegexSubstituteBackrefSwap) {
+    // Swap first and last name (single occurrence)
+    auto re = Regex::compile("([a-zA-Z]+) ([a-zA-Z]+)");
+    std::string res = re.substitute("John Doe", "\\2, \\1");
+    BOOST_CHECK_EQUAL(res, "Doe, John");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexSubstituteNoMatch) {
+    // When pattern doesn't match, subject should be returned unchanged
+    auto re = Regex::compile("xyz");
+    std::string res = re.substitute("hello world", "REPLACED");
+    BOOST_CHECK_EQUAL(res, "hello world");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexSubstituteWholeMatchAmpersand) {
+    // & represents the whole match
+    auto re = Regex::compile("[0-9]+");
+    std::string res = re.substitute("item 42 costs 100", "[&]");
+    BOOST_CHECK_EQUAL(res, "item [42] costs [100]");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexSubstituteEmptyReplacement) {
+    // Effectively deletes all matches
+    auto re = Regex::compile("[0-9]");
+    std::string res = re.substitute("a1b2c3", "");
+    BOOST_CHECK_EQUAL(res, "abc");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexSubstituteBackrefInvalidGroup) {
+    // \3 doesn't exist, should insert nothing for that group
+    auto re = Regex::compile("(a)(b)");
+    std::string res = re.substitute("ab", "\\3");
+    // Group 3 doesn't exist, so \3 is not expanded
+    BOOST_CHECK_EQUAL(res, "");
+}

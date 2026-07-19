@@ -30,3 +30,57 @@ BOOST_AUTO_TEST_CASE(TestRegexFindNegative) {
     BOOST_CHECK(!re2.find("this is foobazqu").matched);
     BOOST_CHECK(!re2.find("this is foobaqux").matched);
 }
+
+BOOST_AUTO_TEST_CASE(TestRegexFindComplexEdgeCases) {
+    // Find with complex backreferences and quantifiers
+    auto re = Regex::compile("([a-z]+) \\1");
+    auto res = re.find("hello hello world");
+    BOOST_CHECK(res.matched);
+    BOOST_CHECK_EQUAL(res.match_str, "hello hello");
+    
+    // Find multiple occurrences by calling find repeatedly? 
+    // `find` just finds the first.
+    auto re2 = Regex::compile("([0-9])\\1{2,}");
+    BOOST_CHECK(re2.find("12 33 4444 55").matched);
+    BOOST_CHECK_EQUAL(re2.find("12 33 4444 55").match_str, "4444");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexFindEmptySubject) {
+    auto re = Regex::compile("abc");
+    BOOST_CHECK(!re.find("").matched);
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexFindAlternation) {
+    auto re = Regex::compile("error|warning|fatal");
+    auto res = re.find("this is a warning message");
+    BOOST_CHECK(res.matched);
+    BOOST_CHECK_EQUAL(res.match_str, "warning");
+
+    auto res2 = re.find("everything is fine");
+    BOOST_CHECK(!res2.matched);
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexFindAtBoundaries) {
+    // Pattern at the very start
+    auto re = Regex::compile("[0-9]+");
+    auto res = re.find("42 is the answer");
+    BOOST_CHECK(res.matched);
+    BOOST_CHECK_EQUAL(res.match_str, "42");
+
+    // Pattern at the very end
+    auto res2 = re.find("the answer is 42");
+    BOOST_CHECK(res2.matched);
+    BOOST_CHECK_EQUAL(res2.match_str, "42");
+}
+
+BOOST_AUTO_TEST_CASE(TestRegexFindNegativeMoreCases) {
+    // Pattern that almost matches
+    auto re = Regex::compile("abcdef");
+    BOOST_CHECK(!re.find("abcde").matched);
+    BOOST_CHECK(!re.find("bcdef").matched);
+    BOOST_CHECK(re.find("xabcdefy").matched);
+
+    // Character class that matches nothing in subject
+    auto re2 = Regex::compile("[A-Z]{5}");
+    BOOST_CHECK(!re2.find("all lowercase text here").matched);
+}

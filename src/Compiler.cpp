@@ -680,11 +680,16 @@ namespace regexjit {
 Compiler::Compiler() {}
 Compiler::~Compiler() {}
 
-std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast) {
+std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast, bool disassemble) {
     int max_groups = count_groups(ast.get());
     
     CodeHolder code;
     code.init(runtime_.environment());
+    
+    StringLogger logger;
+    if (disassemble) {
+        code.set_logger(&logger);
+    }
     
 #if ASMJIT_ARCH_X86
     x86::Compiler cc(&code);
@@ -704,6 +709,11 @@ std::shared_ptr<CompiledRegex> Compiler::compile(const ast::NodePtr& ast) {
     Error err = runtime_.add(&func, &code);
     if (err != asmjit::kErrorOk) {
         throw CompileError("AsmJit compilation failed");
+    }
+
+    if (disassemble) {
+        std::cout << "--- RegexJit Disassembly ---\n";
+        std::cout << logger.data() << "\n";
     }
 
     return std::make_shared<CompiledRegex>(runtime_, func, max_groups);

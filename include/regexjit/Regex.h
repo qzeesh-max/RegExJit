@@ -17,7 +17,7 @@ struct MatchResult {
 class Regex {
 public:
     // Factory method to compile a regex
-    static Regex compile(std::string_view pattern);
+    static Regex compile(std::string_view pattern, bool disassemble = false);
 
     // Default constructor (invalid regex)
     Regex();

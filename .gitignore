@@ -1,2 +1,42 @@
+# Build directories
 build/
+build_*/
+cmake-build-*/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Generated files
+html/
+latex/
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+
+# Temporary test artifacts
+tmp_test_*.txt
+tmp_test_*.pl
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Test binaries (handled by build dir)
+test_mmap
+test_asmjit
+test_mmap.c
+test_asmjit.cpp

@@ -18,10 +18,10 @@ Regex::~Regex() = default;
 Regex::Regex(Regex&&) noexcept = default;
 Regex& Regex::operator=(Regex&&) noexcept = default;
 
-Regex Regex::compile(std::string_view pattern) {
+Regex Regex::compile(std::string_view pattern, bool disassemble) {
     auto ast = Parser::parse(pattern);
     auto impl = std::make_unique<Impl>();
-    impl->compiled = impl->compiler.compile(ast);
+    impl->compiled = impl->compiler.compile(ast, disassemble);
     return Regex(std::move(impl));
 }
 
