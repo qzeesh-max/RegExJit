@@ -7,16 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Enable testing
 enable_testing()
 
-# Fetch AsmJit
-include(FetchContent)
-FetchContent_Declare(
-    asmjit
-    GIT_REPOSITORY https://github.com/asmjit/asmjit.git
-    GIT_TAG        master
-)
+# AsmJit submodule
 # AsmJit doesn't need to install when embedded
 set(ASMJIT_EMBED ON CACHE BOOL "")
-FetchContent_MakeAvailable(asmjit)
+add_subdirectory(third_party/asmjit)
 
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)

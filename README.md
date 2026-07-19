@@ -24,7 +24,16 @@ RegExJit is a fast, Just-In-Time (JIT) compiled regular expression engine writte
 
 ## Building the Project
 
-RegExJit uses `FetchContent` to download and build `AsmJit` statically. No external dependencies are required to be pre-installed on the system, keeping integration seamless.
+RegExJit uses `asmjit` as its core JIT compilation engine. Instead of downloading it at build-time, `asmjit` is included as a git submodule to guarantee reproducibility.
+
+The project is currently built and tested against AsmJit `master` branch commit SHA: `0bd5787b54b575ed94bf32ac452153b34385c514`.
+
+Before building, make sure you clone the repository with its submodules:
+```bash
+git clone --recursive https://github.com/qzeesh-max/RegExJit.git
+cd RegExJit
+```
+*(If you already cloned the repository without `--recursive`, run `git submodule update --init --recursive` to fetch AsmJit.)*
 
 ### macOS & Linux
 
